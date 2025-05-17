@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
 
 class StagesController extends GetxController {
-  // المتغيرات التي تتغير عند اختيار المستخدم
-  var selectedStage = ''.obs; // المرحلة: ابتدائي - إعدادي - ثانوي - جامعي
-  var selectedGrade = ''.obs; // الصف داخل المرحلة
-  var selectedSubject = ''.obs; // المادة
-  var selectedUniversity = ''.obs; // الجامعة (للجامعي فقط)
-  var selectedCollege = ''.obs; // الكلية (للجامعي فقط)
+  var selectedStage = ''.obs;
+  var selectedGrade = ''.obs;
+  var selectedSubject = ''.obs;
+  var selectedUniversity = ''.obs;
+  var selectedCollege = ''.obs;
 
   // المراحل الدراسية
   final List<String> stages = ['ابتدائي', 'إعدادي', 'ثانوي', 'جامعي'];
