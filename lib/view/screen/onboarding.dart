@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 import 'package:flutter/cupertino.dart';
+=======
+>>>>>>> 1232d01 (CompleteForm)
 import 'package:flutter/material.dart';
 
-import 'package:untitled3/controller/static/onboardingmodel.dart';
 
+<<<<<<< HEAD
 import '../../controller/constant/color.dart';
 
 class OnBoarding extends StatelessWidget {
@@ -84,3 +87,12 @@ class OnBoarding extends StatelessWidget {
     );
   }
 }
+=======
+class Onboarding extends StatelessWidget  {
+  @override
+  Widget build (BuildContext context)=>
+  Scaffold(
+
+  );
+}
+>>>>>>> 1232d01 (CompleteForm)

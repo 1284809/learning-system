@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:untitled3/controller/constant/color.dart';
 import 'package:untitled3/controller/constant/color.dart';
 
-import '../../controller/functions/verification.dart';
+import '../../../controller/functions/verification.dart';
 
 class VerificationForm extends StatefulWidget{
   State<VerificationForm> createState() => Verification_Form();
