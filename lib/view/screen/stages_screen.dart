@@ -2,31 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:untitled3/controller/stages_controller.dart';
 
-class StagesScreen extends StatelessWidget {
-  final controller = Get.put(StagesController());
+class StageScreen extends StatelessWidget {
+  final StagesController controller = Get.put(StagesController());
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      // يجعل كل شيء من اليمين لليسار
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(title: Text('اختيار المرحلة الدراسية')),
-        body: Container(
-          padding: const EdgeInsets.all(20.0),
-          child: Obx(() {
-            return Column(
+    controller.getStages();
+
+    return Scaffold(
+      appBar: AppBar(title: Text('المرحلة الدراسية والجامعة')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(() {
+          return SingleChildScrollView(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // اختيار المرحلة
+                // المرحلة
+                Text('اختر المرحلة'),
                 DropdownButton<String>(
-                  hint: Text("اختر المرحلة"),
-                  value: controller.selectedStage.value == ''
+                  isExpanded: true,
+                  value: controller.selectedStage.value.isEmpty
                       ? null
                       : controller.selectedStage.value,
                   items: controller.stages
-                      .map((stage) =>
-                          DropdownMenuItem(value: stage, child: Text(stage)))
+                      .map((stage) => DropdownMenuItem(
+                            value: stage,
+                            child: Text(stage),
+                          ))
                       .toList(),
                   onChanged: (value) {
                     controller.selectedStage.value = value!;
@@ -34,35 +37,21 @@ class StagesScreen extends StatelessWidget {
                   },
                 ),
 
-                // اختيار الصف إن لم تكن جامعي
-                if (controller.selectedStage.value != '' &&
-                    controller.selectedStage.value != 'جامعي')
-                  DropdownButton<String>(
-                    hint: Text("اختر الصف"),
-                    value: controller.selectedGrade.value == ''
-                        ? null
-                        : controller.selectedGrade.value,
-                    items: controller
-                        .getGradesForSelectedStage()
-                        .map((grade) =>
-                            DropdownMenuItem(value: grade, child: Text(grade)))
-                        .toList(),
-                    onChanged: (value) {
-                      controller.selectedGrade.value = value!;
-                      controller.selectedSubject.value = '';
-                    },
-                  ),
+                const SizedBox(height: 20),
 
-                // اختيار الجامعة إن كانت جامعي
-                if (controller.selectedStage.value == 'جامعي')
+                // إذا كانت المرحلة "جامعي"
+                if (controller.selectedStage.value == 'جامعي') ...[
+                  Text('اختر الجامعة'),
                   DropdownButton<String>(
-                    hint: Text("اختر الجامعة"),
-                    value: controller.selectedUniversity.value == ''
+                    isExpanded: true,
+                    value: controller.selectedUniversity.value.isEmpty
                         ? null
                         : controller.selectedUniversity.value,
                     items: controller.universities
-                        .map((uni) =>
-                            DropdownMenuItem(value: uni, child: Text(uni)))
+                        .map((uni) => DropdownMenuItem(
+                              value: uni,
+                              child: Text(uni),
+                            ))
                         .toList(),
                     onChanged: (value) {
                       controller.selectedUniversity.value = value!;
@@ -70,68 +59,75 @@ class StagesScreen extends StatelessWidget {
                       controller.selectedSubject.value = '';
                     },
                   ),
-
-                // اختيار الكلية
-                if (controller.selectedStage.value == 'جامعي' &&
-                    controller.selectedUniversity.value != '')
+                  const SizedBox(height: 20),
+                  if (controller.selectedUniversity.value.isNotEmpty) ...[
+                    Text('اختر الكلية'),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: controller.selectedCollege.value.isEmpty
+                          ? null
+                          : controller.selectedCollege.value,
+                      items: controller.colleges
+                          .map((col) => DropdownMenuItem(
+                                value: col,
+                                child: Text(col),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        controller.selectedCollege.value = value!;
+                        controller.selectedSubject.value = '';
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  if (controller.selectedCollege.value.isNotEmpty) ...[
+                    Text('المواد:'),
+                    Wrap(
+                      spacing: 8,
+                      children: controller
+                          .getSubjectsForCollege()
+                          .map((subject) => Chip(label: Text(subject)))
+                          .toList(),
+                    ),
+                  ],
+                ]
+                // إن لم تكن جامعي → عرض المرحلة المدرسية
+                else if (controller.selectedStage.value.isNotEmpty) ...[
+                  Text('اختر الصف'),
                   DropdownButton<String>(
-                    hint: Text("اختر الكلية"),
-                    value: controller.selectedCollege.value == ''
+                    isExpanded: true,
+                    value: controller.selectedGrade.value.isEmpty
                         ? null
-                        : controller.selectedCollege.value,
-                    items: controller.colleges
-                        .map((col) =>
-                            DropdownMenuItem(value: col, child: Text(col)))
-                        .toList(),
+                        : controller.selectedGrade.value,
+                    items:
+                        (controller.allGrades[controller.selectedStage.value] ??
+                                [])
+                            .map((grade) => DropdownMenuItem(
+                                  value: grade,
+                                  child: Text(grade),
+                                ))
+                            .toList(),
                     onChanged: (value) {
-                      controller.selectedCollege.value = value!;
+                      controller.selectedGrade.value = value!;
                       controller.selectedSubject.value = '';
                     },
                   ),
-
-                // اختيار المادة حسب المرحلة (مدرسي)
-                if (controller.selectedStage.value != 'جامعي' &&
-                    controller.selectedGrade.value != '')
-                  DropdownButton<String>(
-                    hint: Text("اختر المادة"),
-                    value: controller.selectedSubject.value == ''
-                        ? null
-                        : controller.selectedSubject.value,
-                    items: controller
-                        .getSubjectsForSelectedGrade()
-                        .map((subj) =>
-                            DropdownMenuItem(value: subj, child: Text(subj)))
-                        .toList(),
-                    onChanged: (value) {
-                      controller.selectedSubject.value = value!;
-                    },
-                  ),
-
-                // اختيار المادة الجامعية
-                if (controller.selectedStage.value == 'جامعي' &&
-                    controller.selectedCollege.value != '' &&
-                    controller.getSubjectsForCollege().isNotEmpty)
-                  DropdownButton<String>(
-                    hint: Text("اختر المادة"),
-                    value: controller.selectedSubject.value == ''
-                        ? null
-                        : controller.selectedSubject.value,
-                    items: controller
-                        .getSubjectsForCollege()
-                        .map((subj) =>
-                            DropdownMenuItem(value: subj, child: Text(subj)))
-                        .toList(),
-                    onChanged: (value) {
-                      controller.selectedSubject.value = value!;
-                    },
-                  ),
-
-                SizedBox(height: 20),
-                ElevatedButton(onPressed: () {}, child: Text('التالي'))
+                  const SizedBox(height: 20),
+                  if (controller.selectedGrade.value.isNotEmpty) ...[
+                    Text('المواد:'),
+                    Wrap(
+                      spacing: 8,
+                      children: controller
+                          .getSubjectsForSelectedGrade()
+                          .map((subject) => Chip(label: Text(subject)))
+                          .toList(),
+                    ),
+                  ],
+                ],
               ],
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }

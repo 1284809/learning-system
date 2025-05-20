@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       textDirection: TextDirection.rtl,
       debugShowCheckedModeBanner: false,
-      home: StagesScreen(),
+      home: StageScreen(),
     );
   }
 }

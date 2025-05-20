@@ -1,86 +1,92 @@
+import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class StagesController extends GetxController {
+  // المتغيرات المرتبطة باختيارات المستخدم
   var selectedStage = ''.obs;
   var selectedGrade = ''.obs;
   var selectedSubject = ''.obs;
   var selectedUniversity = ''.obs;
   var selectedCollege = ''.obs;
 
-  // المراحل الدراسية
-  final List<String> stages = ['ابتدائي', 'إعدادي', 'ثانوي', 'جامعي'];
+  // بيانات المرحلة المدرسية والجامعية
+  var stages = <String>[].obs;
+  var allGrades = <String, List<String>>{}.obs;
+  var schoolSubjects = <String, Map<String, List<String>>>{}.obs;
+  var universities = <String>[].obs;
+  var colleges = <String>[].obs;
+  var universitySubjects = <String, List<String>>{}.obs;
 
-  // الصفوف حسب المرحلة
-  final Map<String, List<String>> allGrades = {
-    'ابتدائي': ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
-    'إعدادي': ['السابع', 'الثامن', 'التاسع'],
-    'ثانوي': ['العاشر', 'الحادي عشر', 'الثاني عشر'],
-  };
+  // جلب البيانات من الباك
+  Future<void> getStages() async {
+    var url = Uri.parse('');
 
-  // المواد حسب الصف
-  final Map<String, Map<String, List<String>>> schoolSubjects = {
-    'ابتدائي': {
-      'الأول': ['عربي', 'رياضيات', 'علوم', 'دين'],
-      'الثاني': ['عربي', 'رياضيات', 'علوم', 'دين'],
-      'الثالث': ['عربي', 'رياضيات', 'علوم', 'دين'],
-      'الرابع': ['عربي', 'رياضيات', 'علوم', 'اجتماعيات'],
-      'الخامس': ['عربي', 'رياضيات', 'علوم', 'اجتماعيات'],
-      'السادس': ['عربي', 'رياضيات', 'علوم', 'اجتماعيات'],
-    },
-    'إعدادي': {
-      'السابع': ['عربي', 'رياضيات', 'فيزياء', 'اجتماعيات'],
-      'الثامن': ['عربي', 'رياضيات', 'فيزياء', 'كيمياء'],
-      'التاسع': ['عربي', 'رياضيات', 'علوم', 'فيزياء', 'كيمياء'],
-    },
-    'ثانوي': {
-      'العاشر': ['عربي', 'رياضيات', 'فيزياء', 'كيمياء'],
-      'الحادي عشر': ['عربي', 'رياضيات', 'فيزياء', 'كيمياء', 'أحياء'],
-      'الثاني عشر': ['عربي', 'رياضيات', 'فيزياء', 'كيمياء', 'فلسفة'],
-    },
-  };
+    try {
+      var response = await http.get(url);
 
-  // الجامعات السورية
-  final List<String> universities = [
-    'جامعة دمشق',
-    'جامعة حلب',
-    'جامعة تشرين',
-    'جامعة البعث',
-    'جامعة الفرات',
-    'جامعة حماة'
-  ];
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
 
-  // الكليات المشتركة
-  final List<String> colleges = [
-    'الطب البشري',
-    'الهندسة المعلوماتية',
-    'الحقوق',
-    'الآداب',
-    'الاقتصاد',
-  ];
+        // تعبئة البيانات
+        stages.value = List<String>.from(data['stages']);
 
-  // المواد الجامعية حسب الكلية (مثال مبسط)
-  final Map<String, List<String>> universitySubjects = {
-    'الطب البشري': ['تشريح', 'أدوية', 'أمراض', 'جراحة'],
-    'الهندسة المعلوماتية': ['برمجة', 'هياكل بيانات', 'أنظمة تشغيل'],
-    'الحقوق': ['مدني', 'جنائي', 'دستوري'],
-    'الآداب': ['نحو', 'أدب جاهلي', 'بلاغة'],
-    'الاقتصاد': ['اقتصاد جزئي', 'اقتصاد كلي', 'محاسبة'],
-  };
+        allGrades.value = Map<String, List<String>>.fromEntries(
+          (data['grades'] as Map).entries.map(
+                (e) => MapEntry(e.key, List<String>.from(e.value)),
+              ),
+        );
 
-  // دوال للمساعدة في عرض الخيارات حسب الاختيار الحالي
+        schoolSubjects.value =
+            Map<String, Map<String, List<String>>>.fromEntries(
+          (data['subjects'] as Map).entries.map(
+                (e) => MapEntry(
+                  e.key,
+                  Map<String, List<String>>.fromEntries(
+                    (e.value as Map).entries.map(
+                          (grade) => MapEntry(
+                            grade.key,
+                            List<String>.from(grade.value),
+                          ),
+                        ),
+                  ),
+                ),
+              ),
+        );
+
+        universities.value = List<String>.from(data['universities']);
+        colleges.value = List<String>.from(data['colleges']);
+
+        universitySubjects.value = Map<String, List<String>>.fromEntries(
+          (data['universitySubjects'] as Map).entries.map(
+                (e) => MapEntry(e.key, List<String>.from(e.value)),
+              ),
+        );
+      } else {
+        Get.snackbar('خطأ', 'فشل تحميل البيانات من السيرفر');
+      }
+    } catch (e) {
+      Get.snackbar('خطأ', 'حدث خطأ أثناء جلب البيانات');
+      print('Error: $e');
+    }
+  }
+
+  // استرجاع الصفوف حسب المرحلة
   List<String> getGradesForSelectedStage() {
     return allGrades[selectedStage.value] ?? [];
   }
 
+  // استرجاع المواد المدرسية حسب الصف
   List<String> getSubjectsForSelectedGrade() {
     return schoolSubjects[selectedStage.value]?[selectedGrade.value] ?? [];
   }
 
+  // استرجاع مواد الجامعة حسب الكلية
   List<String> getSubjectsForCollege() {
     return universitySubjects[selectedCollege.value] ?? [];
   }
 
-  // إعادة تعيين الاختيارات عند الرجوع للخلف أو تغيير المرحلة
+  // إعادة تعيين الاختيارات عند تغيير المرحلة
   void resetSelections() {
     selectedGrade.value = '';
     selectedSubject.value = '';
