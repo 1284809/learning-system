@@ -11,7 +11,7 @@ class FilteringTeachersScreen extends StatelessWidget {
     controller.getFilteringTeachers();
 
     return Scaffold(
-      appBar: AppBar(title: Text(' الصفحة الرئيسية')),
+      appBar: AppBar(title: Text('       الصفحة الرئيسية')),
       body: Obx(() {
         if (controller.isloading.value) {
           return Center(child: CircularProgressIndicator());

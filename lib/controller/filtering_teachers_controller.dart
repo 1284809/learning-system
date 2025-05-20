@@ -9,7 +9,7 @@ class FilteringTeachersController extends GetxController {
   Future<void> getFilteringTeachers() async {
     isloading.value = true;
 
-    final url = Uri.parse('https://');
+    final url = Uri.parse('https://             ');
 
     try {
       var response = await http.get(url);
