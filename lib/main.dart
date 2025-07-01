@@ -8,7 +8,10 @@ import 'package:untitled3/view/screen/Student/onboarding.dart';
 import 'package:untitled3/view/screen/Student/selectaccount.dart';
 import 'package:untitled3/view/screen/Student/verificationform.dart';
 import 'package:untitled3/view/screen/Student/verificationstudentone.dart';
-import 'package:untitled3/view/screen/stages_screen.dart';
+import 'package:untitled3/view/screen/Student/stages_screen.dart';
+import 'package:untitled3/view/screen/addpostscreen.dart';
+import 'package:untitled3/view/screen/postsScreen.dart';
+import 'package:untitled3/view/screen/productscreen.dart';
 import 'package:untitled3/view/widget/customradiolisttile.dart';
 
 void main() {
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StageScreen(),
+      home: Products(),
     );
   }
 }
